@@ -1,5 +1,5 @@
 # authentication information
 dbhost = "string"
 dbname = "string"
-username = "string"
-password = "string"
+dbuser = "string"
+dbpw = "string"

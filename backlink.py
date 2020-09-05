@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+#!/usr/bin/python3
 
 ## backlink.py ##
 
@@ -9,8 +9,13 @@
 
 # Sample code from https://pynative.com/python-mysql-database-connection/
 
+from myauth import *
+
+import urllib.request
+import json
 import mysql.connector
 from mysql.connector import Error
+
 
 core_query = """SELECT 
     concat( 
@@ -20,22 +25,28 @@ core_query = """SELECT
         date_format( publication_date,"%Y%m%d")
     )
     FROM `hoo_sf_data`
-    where site in 'The Zone', 'M/C Reviews'
+    where site in ('The Zone', 'M/C Reviews')
     and link not like '%web.archive.org%'
+    and link not like '%pigasus%'
     """
 
 try:
-    connection = mysql.connector.connect(host='localhost',
-                                         database='Electronics',
-                                         user='pynative',
-                                         password='pynative@#29')
+    connection = mysql.connector.connect(host = dbhost,
+                                         database = dbname,
+                                         user = dbuser,
+                                         password = dbpw )
     if connection.is_connected():
-        db_Info = connection.get_server_info()
-        print("Connected to MySQL Server version ", db_Info)
         cursor = connection.cursor()
-        cursor.execute("select database();")
-        record = cursor.fetchone()
-        print("You're connected to database: ", record)
+        cursor.execute(core_query)
+        #records = cursor.fetchall()
+        #for row in records:  ## note may need to switch to row[0] here
+        for row in cursor.fetchone():
+            with urllib.request.urlopen(row) as response:
+                jsonreturn = json.loads(response.read())
+                if jsonreturn["archived_snapshots"]["closest"]["available"] :
+                    print(jsonreturn["archived_snapshots"]["closest"]["url"])
+                else:
+                    print("Could not find a match for ", row)
 
 except Error as e:
     print("Error while connecting to MySQL", e)
