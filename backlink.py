@@ -25,9 +25,8 @@ core_query = """SELECT
         date_format( publication_date,"%Y%m%d")
     )
     FROM `hoo_sf_data`
-    where site in ('The Zone', 'M/C Reviews')
-    and link not like '%web.archive.org%'
-    and link not like '%pigasus%'
+    where link not like '%web.archive.org%'
+    and ( link like '%zone-sf%' or '%media-culture%' )
     """
 
 try:
