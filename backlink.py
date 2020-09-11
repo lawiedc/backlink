@@ -21,7 +21,8 @@ from mysql.connector import Error
 # Links we know are dead, idempotent form :-)
 core_query = """SELECT 
     link,
-    date_format( publication_date,"%Y%m%d")
+    date_format( publication_date,"%Y%m%d"),
+    title
     FROM hoo_sf_data
     where link not like '%web.archive.org%'
     and ( link like '%zone-sf%' or link like '%media-culture%' )
@@ -47,7 +48,7 @@ try:
                     jsonreturn["archived_snapshots"]["closest"]["available"]
                 except:
                     # State no Wayback data available
-                    print("Could not find a match for ", row)
+                    print("Could not find a match for ", row[2])
                 else:
                     # Update the data
                     update_data = ( jsonreturn["archived_snapshots"]["closest"]["url"], row[0] )
